@@ -16,7 +16,7 @@ import {
   setOnboardingComplete
 } from "@/lib/auth/client-auth";
 import { computeNutritionTarget } from "@/lib/formulas";
-import { db } from "@/lib/offline/db";
+import { db, ensureLocalUserScope } from "@/lib/offline/db";
 import { enqueueSyncItem } from "@/lib/offline/sync-engine";
 import type { Goal, Level } from "@/lib/types";
 
@@ -58,6 +58,16 @@ export function OnboardingWizard() {
 
     startTransition(() => {
       void (async () => {
+        const authState = await getClientAuthState();
+        const identityKey = getAuthIdentityKey(authState);
+
+        if (!identityKey) {
+          setFeedback("La session n'est plus disponible. Reconnecte-toi pour terminer l'onboarding.");
+          return;
+        }
+
+        await ensureLocalUserScope(identityKey, authState.email);
+
         const templates = await db.trainingTemplates.toArray();
         const selectedTemplate =
           templates.find((template) => template.goal === goal && (template.level === level || template.level === "all")) ??
@@ -89,7 +99,7 @@ export function OnboardingWizard() {
             await db.weeklySummaries.clear();
             await db.syncQueue.clear();
 
-            await db.profile.update("user-demo", {
+            await db.profile.update(identityKey, {
               firstName: emailLikeName(),
               goal,
               level,
@@ -105,7 +115,7 @@ export function OnboardingWizard() {
 
             await db.trainingPlans.put({
               id: generatedPlanId,
-              userId: "user-demo",
+              userId: identityKey,
               version: 1,
               templateName: selectedTemplate?.name ?? "Cadre initial",
               status: "active",
@@ -150,8 +160,7 @@ export function OnboardingWizard() {
           }
         });
 
-        const authState = await getClientAuthState();
-        setOnboardingComplete(true, getAuthIdentityKey(authState));
+        setOnboardingComplete(true, identityKey);
         router.push("/agenda");
       })();
     });

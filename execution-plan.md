@@ -182,7 +182,7 @@ Done when:
 
 ### YC-005 - Finaliser les flux auth Supabase de bout en bout
 
-- Statut: `Backlog`
+- Statut: `Done`
 - Priorite: `P0`
 - Taille: `M`
 - Type: `Frontend`
@@ -198,6 +198,10 @@ Done when:
   - tester reset password reel
 - Criteres d'acceptation:
   - un utilisateur peut creer son compte, se connecter et recuperer son acces
+- Validation:
+  - 2026-04-15: erreurs credentials Supabase mappees vers des messages plus clairs
+  - 2026-04-15: callback email et flow reel de reinitialisation du mot de passe ajoutes
+  - 2026-04-15: CI GitHub et build Vercel valides apres correction du callback auth
 
 ### YC-006 - Rendre le bootstrap local user-aware
 

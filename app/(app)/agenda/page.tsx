@@ -12,11 +12,16 @@ import { SectionHeading } from "@/components/sections/section-heading";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuthIdentity } from "@/hooks/use-auth-identity";
 import { db } from "@/lib/offline/db";
 import { formatKg, formatPercent, formatShortDate } from "@/lib/utils";
 
 export default function AgendaPage() {
-  const profile = useLiveQuery(() => db.profile.get("user-demo"), []);
+  const { identityKey } = useAuthIdentity();
+  const profile = useLiveQuery(
+    () => (identityKey ? db.profile.get(identityKey) : undefined),
+    [identityKey]
+  );
   const workouts = useLiveQuery(() => db.plannedWorkouts.orderBy("date").toArray(), []);
   const meals = useLiveQuery(() => db.mealEntries.toArray(), []);
   const recommendations = useLiveQuery(() => db.recommendations.toArray(), []);

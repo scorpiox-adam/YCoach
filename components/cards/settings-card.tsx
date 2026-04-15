@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { db } from "@/lib/offline/db";
+import { useAuthIdentity } from "@/hooks/use-auth-identity";
+import { db, ensureLocalUserScope } from "@/lib/offline/db";
 import { fr } from "@/lib/i18n/fr";
 import { enqueueSyncItem } from "@/lib/offline/sync-engine";
 
@@ -15,11 +16,19 @@ export function SettingsCard() {
   const [key, setKey] = useState("");
   const [visible, setVisible] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const { identityKey } = useAuthIdentity();
 
   async function handleSave() {
+    if (!identityKey) {
+      setFeedback("La session n'est plus disponible. Recharge la page puis reconnecte-toi.");
+      return;
+    }
+
+    await ensureLocalUserScope(identityKey);
+
     const masked = key ? `${key.slice(0, 4)}••••${key.slice(-4)}` : "";
 
-    await db.settings.update("settings-demo", {
+    await db.settings.update(identityKey, {
       openAiKeyMasked: masked,
       aiAvailability: key ? "ready" : "missing_key"
     });
@@ -72,4 +81,3 @@ export function SettingsCard() {
     </Card>
   );
 }
-

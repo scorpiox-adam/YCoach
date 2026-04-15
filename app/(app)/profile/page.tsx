@@ -6,10 +6,15 @@ import { ScreenShell } from "@/components/shell/screen-shell";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { useAuthIdentity } from "@/hooks/use-auth-identity";
 import { db } from "@/lib/offline/db";
 
 export default function ProfilePage() {
-  const profile = useLiveQuery(() => db.profile.get("user-demo"), []);
+  const { identityKey } = useAuthIdentity();
+  const profile = useLiveQuery(
+    () => (identityKey ? db.profile.get(identityKey) : undefined),
+    [identityKey]
+  );
 
   return (
     <ScreenShell eyebrow="Profil" title="Préférences utiles au coaching">
@@ -47,4 +52,3 @@ export default function ProfilePage() {
     </ScreenShell>
   );
 }
-

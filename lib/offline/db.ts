@@ -25,7 +25,42 @@ import type {
   WorkoutSession
 } from "@/lib/types";
 
+type LocalMeta = {
+  key: string;
+  value: string;
+};
+
+const activeUserMetaKey = "active-user-id";
+
+function createEmptyProfile(identityKey: string, email?: string | null): UserProfile {
+  const firstName = email?.split("@")[0] ?? "";
+
+  return {
+    ...mockProfile,
+    id: identityKey,
+    firstName,
+    equipment: [],
+    constraints: [],
+    nutritionPreferences: [],
+    weeklyAvailability: [],
+    streak: 0,
+    weightKg: 0,
+    heightCm: 0,
+    age: 0
+  };
+}
+
+function createEmptySettings(identityKey: string): UserSettings {
+  return {
+    ...mockSettings,
+    id: identityKey,
+    aiAvailability: "missing_key",
+    openAiKeyMasked: ""
+  };
+}
+
 class YCoachDatabase extends Dexie {
+  meta!: Table<LocalMeta, string>;
   profile!: Table<UserProfile, string>;
   settings!: Table<UserSettings, string>;
   trainingPlans!: Table<TrainingPlan, string>;
@@ -59,22 +94,32 @@ class YCoachDatabase extends Dexie {
       syncQueue: "id, status, lastAttemptAt",
       weeklySummaries: "id, weekLabel"
     });
+    this.version(2).stores({
+      meta: "key",
+      profile: "id",
+      settings: "id",
+      trainingPlans: "id, userId, status",
+      trainingTemplates: "id, goal, level",
+      plannedWorkouts: "id, date, status",
+      workoutSessions: "id, date, status, plannedWorkoutId",
+      exercises: "id, category, muscleGroup, origin",
+      foodItems: "id, name, origin",
+      mealEntries: "id, date, source, validated",
+      progressCheckins: "id, date, context",
+      recommendations: "id, status, context",
+      reminders: "id, type, enabled",
+      syncQueue: "id, status, lastAttemptAt",
+      weeklySummaries: "id, weekLabel"
+    });
   }
 }
 
 export const db = new YCoachDatabase();
 
 export async function primeLocalCache() {
-  const hasProfile = await db.profile.count();
-  if (hasProfile > 0) {
-    return;
-  }
-
   await db.transaction(
     "rw",
     [
-      db.profile,
-      db.settings,
       db.trainingTemplates,
       db.exercises,
       db.foodItems,
@@ -82,32 +127,91 @@ export async function primeLocalCache() {
       db.trainingPlans
     ],
     async () => {
-      await db.profile.put({
-        ...mockProfile,
-        firstName: "",
-        equipment: [],
-        constraints: [],
-        nutritionPreferences: [],
-        weeklyAvailability: [],
-        streak: 0,
-        weightKg: 0,
-        heightCm: 0,
-        age: 0
-      });
-      await db.settings.put(mockSettings);
-      await db.trainingTemplates.bulkPut(trainingTemplates);
-      await db.exercises.bulkPut(exercises);
-      await db.foodItems.bulkPut(foodItems);
-      await db.reminders.bulkPut(reminders);
+      if (await db.trainingTemplates.count() === 0) {
+        await db.trainingTemplates.bulkPut(trainingTemplates);
+      }
+
+      if (await db.exercises.count() === 0) {
+        await db.exercises.bulkPut(exercises);
+      }
+
+      if (await db.foodItems.count() === 0) {
+        await db.foodItems.bulkPut(foodItems);
+      }
+
+      if (await db.reminders.count() === 0) {
+        await db.reminders.bulkPut(reminders);
+      }
     }
   );
 }
 
-export async function resetUserScopedData() {
+async function clearVolatileUserScope() {
+  await db.trainingPlans.clear();
+  await db.plannedWorkouts.clear();
+  await db.workoutSessions.clear();
+  await db.mealEntries.clear();
+  await db.progressCheckins.clear();
+  await db.recommendations.clear();
+  await db.weeklySummaries.clear();
+  await db.syncQueue.clear();
+}
+
+async function migrateLegacyDemoScope(identityKey: string, email?: string | null) {
+  const legacyProfile = await db.profile.get(mockProfile.id);
+  const existingProfile = await db.profile.get(identityKey);
+
+  if (!existingProfile) {
+    await db.profile.put(
+      legacyProfile
+        ? {
+            ...legacyProfile,
+            id: identityKey
+          }
+        : createEmptyProfile(identityKey, email)
+    );
+  }
+
+  if (identityKey !== mockProfile.id && legacyProfile) {
+    await db.profile.delete(mockProfile.id);
+  }
+
+  const legacySettings = await db.settings.get(mockSettings.id);
+  const existingSettings = await db.settings.get(identityKey);
+
+  if (!existingSettings) {
+    await db.settings.put(
+      legacySettings
+        ? {
+            ...legacySettings,
+            id: identityKey
+          }
+        : createEmptySettings(identityKey)
+    );
+  }
+
+  if (identityKey !== mockSettings.id && legacySettings) {
+    await db.settings.delete(mockSettings.id);
+  }
+
+  const legacyPlans = await db.trainingPlans.where("userId").equals(mockProfile.id).toArray();
+  if (legacyPlans.length > 0) {
+    await db.trainingPlans.bulkPut(
+      legacyPlans.map((plan) => ({
+        ...plan,
+        userId: identityKey
+      }))
+    );
+  }
+}
+
+export async function ensureLocalUserScope(identityKey: string, email?: string | null) {
   await db.transaction(
     "rw",
     [
+      db.meta,
       db.profile,
+      db.settings,
       db.trainingPlans,
       db.plannedWorkouts,
       db.workoutSessions,
@@ -118,26 +222,50 @@ export async function resetUserScopedData() {
       db.syncQueue
     ],
     async () => {
-      await db.trainingPlans.clear();
-      await db.plannedWorkouts.clear();
-      await db.workoutSessions.clear();
-      await db.mealEntries.clear();
-      await db.progressCheckins.clear();
-      await db.recommendations.clear();
-      await db.weeklySummaries.clear();
-      await db.syncQueue.clear();
-      await db.profile.put({
-        ...mockProfile,
-        firstName: "",
-        equipment: [],
-        constraints: [],
-        nutritionPreferences: [],
-        weeklyAvailability: [],
-        streak: 0,
-        weightKg: 0,
-        heightCm: 0,
-        age: 0
+      const activeUser = await db.meta.get(activeUserMetaKey);
+      const activeUserId = activeUser?.value ?? null;
+
+      if (!activeUserId) {
+        await migrateLegacyDemoScope(identityKey, email);
+      }
+
+      if (activeUserId && activeUserId !== identityKey) {
+        await clearVolatileUserScope();
+      }
+
+      if (!(await db.profile.get(identityKey))) {
+        await db.profile.put(createEmptyProfile(identityKey, email));
+      }
+
+      if (!(await db.settings.get(identityKey))) {
+        await db.settings.put(createEmptySettings(identityKey));
+      }
+
+      await db.meta.put({
+        key: activeUserMetaKey,
+        value: identityKey
       });
+    }
+  );
+}
+
+export async function resetUserScopedData() {
+  await db.transaction(
+    "rw",
+    [
+      db.meta,
+      db.trainingPlans,
+      db.plannedWorkouts,
+      db.workoutSessions,
+      db.mealEntries,
+      db.progressCheckins,
+      db.recommendations,
+      db.weeklySummaries,
+      db.syncQueue
+    ],
+    async () => {
+      await clearVolatileUserScope();
+      await db.meta.delete(activeUserMetaKey);
     }
   );
 }

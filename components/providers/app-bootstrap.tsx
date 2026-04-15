@@ -8,7 +8,7 @@ import {
   getClientAuthState,
   readOnboardingComplete
 } from "@/lib/auth/client-auth";
-import { db, primeLocalCache, resetUserScopedData } from "@/lib/offline/db";
+import { db, ensureLocalUserScope, primeLocalCache } from "@/lib/offline/db";
 import { flushSyncQueue } from "@/lib/offline/sync-engine";
 import { useAppShellStore } from "@/lib/store/use-app-shell-store";
 
@@ -21,13 +21,20 @@ export function AppBootstrap() {
       await primeLocalCache();
 
       const authState = await getClientAuthState();
-      const onboardingComplete = readOnboardingComplete(getAuthIdentityKey(authState));
+      const identityKey = getAuthIdentityKey(authState);
+      const onboardingComplete = readOnboardingComplete(identityKey);
 
-      if (!authState.isAuthenticated || !onboardingComplete) {
-        await resetUserScopedData();
+      if (!authState.isAuthenticated || !identityKey) {
+        return;
+      }
+
+      await ensureLocalUserScope(identityKey, authState.email);
+
+      if (!onboardingComplete) {
+        setSyncBadge("synced");
       }
     })();
-  }, []);
+  }, [setSyncBadge]);
 
   useEffect(() => {
     if (!isOnline) {

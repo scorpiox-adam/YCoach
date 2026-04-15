@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 
 import { signOutClient } from "@/lib/auth/client-auth";
-import { resetUserScopedData } from "@/lib/offline/db";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -12,7 +11,6 @@ export function SignOutCard() {
 
   async function handleSignOut() {
     await signOutClient();
-    await resetUserScopedData();
     router.replace("/login");
   }
 
