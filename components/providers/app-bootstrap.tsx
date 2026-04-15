@@ -82,7 +82,7 @@ export function AppBootstrap() {
     }
 
     void runSync();
-  }, [authState?.isAuthenticated, identityKey, isLoading, isOnline, runSync]);
+  }, [authState?.isAuthenticated, identityKey, isLoading, isOnline, queueSummary.pending, runSync]);
 
   return null;
 }

@@ -18,7 +18,10 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="surface-panel fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-center justify-between rounded-[2rem] px-2 py-2">
+    <nav
+      className="bottom-nav-shell surface-panel fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-center justify-between rounded-[2rem] px-2 pt-2"
+      aria-label="Navigation principale"
+    >
       {navItems.map((item) => {
         const Icon = item.icon;
         const active = pathname.startsWith(item.href);
@@ -42,4 +45,3 @@ export function BottomNav() {
     </nav>
   );
 }
-

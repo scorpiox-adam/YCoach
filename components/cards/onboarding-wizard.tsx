@@ -206,7 +206,7 @@ export function OnboardingWizard() {
                 options={[
                   { label: "Perte", value: "weight_loss" },
                   { label: "Muscle", value: "muscle_gain" },
-                  { label: "Recomp", value: "recomposition" },
+                  { label: "Recomposition", value: "recomposition" },
                   { label: "Perf", value: "performance" }
                 ]}
               />
