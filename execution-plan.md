@@ -205,7 +205,7 @@ Done when:
 
 ### YC-006 - Rendre le bootstrap local user-aware
 
-- Statut: `Backlog`
+- Statut: `Done`
 - Priorite: `P0`
 - Taille: `L`
 - Type: `Data`
@@ -223,6 +223,10 @@ Done when:
 - Criteres d'acceptation:
   - l'app charge les donnees du vrai compte connecte
   - aucun reset silencieux des donnees locales utilisateur
+- Validation:
+  - 2026-04-15: scope local utilisateur ajoute dans Dexie avec migration douce depuis `user-demo`
+  - 2026-04-15: agenda, profil, onboarding et reglages relies a l'identite auth reelle
+  - 2026-04-15: CI GitHub verte sur le commit `cce00ceca31ec0e76bed6a92a0d8097c168b3d33`
 
 ## Phase 2 - Sync reelle et stockage fiable
 

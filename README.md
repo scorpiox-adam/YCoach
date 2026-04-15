@@ -67,11 +67,13 @@ Variables utiles pour les workflows Supabase / Edge Functions:
 
 - `SUPABASE_PROJECT_ID`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `SUPABASE_ENCRYPTION_KEY`
+- `YCOACH_ENCRYPTION_KEY`
 
 Important:
 
 - ne mets jamais `SUPABASE_SERVICE_ROLE_KEY` dans des variables publiques côté navigateur
+- dans les Edge Functions hébergées par Supabase, `SUPABASE_SERVICE_ROLE_KEY` est injectée automatiquement
+- pour le chiffrement applicatif, crée un secret custom `YCOACH_ENCRYPTION_KEY`
 - pour les Edge Functions déployées, préfère `supabase secrets set ...`
 - `NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH=true` active explicitement un mode démo local UI-only
 - ce mode démo n'est autorisé qu'en `development`, jamais en `preview` ou `production`

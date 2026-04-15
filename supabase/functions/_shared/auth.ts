@@ -2,7 +2,10 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const encryptionKey = Deno.env.get("SUPABASE_ENCRYPTION_KEY") ?? "";
+const encryptionKey =
+  Deno.env.get("YCOACH_ENCRYPTION_KEY") ??
+  Deno.env.get("SUPABASE_ENCRYPTION_KEY") ??
+  "";
 
 export function createServiceClient() {
   return createClient(supabaseUrl, serviceRoleKey, {
@@ -40,7 +43,7 @@ export async function decryptSecret(payload: string | null) {
   }
 
   if (!encryptionKey) {
-    throw new Error("Missing SUPABASE_ENCRYPTION_KEY");
+    throw new Error("Missing YCOACH_ENCRYPTION_KEY");
   }
 
   const [ivBase64, cipherBase64] = payload.split(":");
