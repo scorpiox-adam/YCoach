@@ -101,6 +101,16 @@ supabase start
 supabase db reset
 ```
 
+## CI
+
+Une GitHub Action minimale est versionnée dans `.github/workflows/ci.yml`.
+
+Elle s'exécute sur `push`, `pull_request` et `workflow_dispatch`, avec:
+
+- installation via `pnpm install --frozen-lockfile`
+- `pnpm typecheck`
+- `pnpm build`
+
 ## Limites actuelles
 
 - Le frontend est fonctionnel côté structure et interactions locales, mais plusieurs flux restent branchés à des données seed/mock plutôt qu'à Supabase temps réel.

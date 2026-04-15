@@ -114,7 +114,7 @@ Done when:
 
 ### YC-002 - Ajouter CI minimale build + typecheck
 
-- Statut: `Backlog`
+- Statut: `Done`
 - Priorite: `P0`
 - Taille: `S`
 - Type: `Infra`
@@ -128,6 +128,9 @@ Done when:
   - lancer build et verification TypeScript
 - Criteres d'acceptation:
   - chaque PR ou push principal echoue si build/typecheck cassent
+- Validation:
+  - 2026-04-15: workflow GitHub Actions ajoute localement dans `.github/workflows/ci.yml`
+  - premier run GitHub a verifier apres push
 
 ### YC-003 - Introduire une configuration d'environnement explicite
 
