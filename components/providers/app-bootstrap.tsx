@@ -1,40 +1,61 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useCallback, useEffect } from "react";
 
+import { useAuthIdentity } from "@/hooks/use-auth-identity";
 import { useNetworkStatus } from "@/hooks/use-network-status";
-import {
-  getAuthIdentityKey,
-  getClientAuthState,
-  readOnboardingComplete
-} from "@/lib/auth/client-auth";
-import { db, ensureLocalUserScope, primeLocalCache } from "@/lib/offline/db";
-import { flushSyncQueue } from "@/lib/offline/sync-engine";
+import { ensureLocalUserScope, primeLocalCache } from "@/lib/offline/db";
+import { getSyncQueueSummary, runSyncCycle } from "@/lib/offline/sync-engine";
 import { useAppShellStore } from "@/lib/store/use-app-shell-store";
+
+const defaultQueueSummary = {
+  failed: 0,
+  pending: 0,
+  queued: 0,
+  syncing: 0
+};
 
 export function AppBootstrap() {
   const isOnline = useNetworkStatus();
+  const { authState, identityKey, isLoading } = useAuthIdentity();
+  const setRetrySync = useAppShellStore((state) => state.setRetrySync);
   const setSyncBadge = useAppShellStore((state) => state.setSyncBadge);
+  const queueSummary = useLiveQuery(getSyncQueueSummary, [], defaultQueueSummary) ?? defaultQueueSummary;
 
   useEffect(() => {
-    void (async () => {
-      await primeLocalCache();
+    void primeLocalCache();
+  }, []);
 
-      const authState = await getClientAuthState();
-      const identityKey = getAuthIdentityKey(authState);
-      const onboardingComplete = readOnboardingComplete(identityKey);
+  useEffect(() => {
+    if (isLoading || !authState?.isAuthenticated || !identityKey) {
+      return;
+    }
 
-      if (!authState.isAuthenticated || !identityKey) {
+    void ensureLocalUserScope(identityKey, authState.email);
+  }, [authState?.email, authState?.isAuthenticated, identityKey, isLoading]);
+
+  const runSync = useCallback(
+    async (includeFailed = false) => {
+      if (!isOnline || isLoading || !authState?.isAuthenticated || !identityKey) {
         return;
       }
 
       await ensureLocalUserScope(identityKey, authState.email);
+      await runSyncCycle({ includeFailed });
+    },
+    [authState?.email, authState?.isAuthenticated, identityKey, isLoading, isOnline]
+  );
 
-      if (!onboardingComplete) {
-        setSyncBadge("synced");
-      }
-    })();
-  }, [setSyncBadge]);
+  useEffect(() => {
+    setRetrySync(() => {
+      void runSync(true);
+    });
+
+    return () => {
+      setRetrySync(null);
+    };
+  }, [runSync, setRetrySync]);
 
   useEffect(() => {
     if (!isOnline) {
@@ -42,22 +63,26 @@ export function AppBootstrap() {
       return;
     }
 
-    void db.syncQueue
-      .where("status")
-      .equals("queued")
-      .count()
-      .then((count) => setSyncBadge(count > 0 ? "sync_pending" : "synced"));
-  }, [isOnline, setSyncBadge]);
-
-  useEffect(() => {
-    if (!isOnline) {
+    if (queueSummary.failed > 0) {
+      setSyncBadge("sync_failed");
       return;
     }
 
-    void flushSyncQueue().then(() => {
-      setSyncBadge("synced");
-    });
-  }, [isOnline, setSyncBadge]);
+    if (queueSummary.pending > 0) {
+      setSyncBadge("sync_pending");
+      return;
+    }
+
+    setSyncBadge("synced");
+  }, [isOnline, queueSummary.failed, queueSummary.pending, setSyncBadge]);
+
+  useEffect(() => {
+    if (!isOnline || isLoading || !authState?.isAuthenticated || !identityKey) {
+      return;
+    }
+
+    void runSync();
+  }, [authState?.isAuthenticated, identityKey, isLoading, isOnline, runSync]);
 
   return null;
 }

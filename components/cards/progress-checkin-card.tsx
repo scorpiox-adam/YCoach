@@ -39,11 +39,7 @@ export function ProgressCheckinCard() {
       entity: "progress_checkins",
       action: "create",
       payload: {
-        id,
-        weightKg,
-        sleep,
-        energy,
-        fatigue
+        checkinId: id
       }
     });
   }
@@ -82,4 +78,3 @@ export function ProgressCheckinCard() {
     </Card>
   );
 }
-

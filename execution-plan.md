@@ -232,7 +232,7 @@ Done when:
 
 ### YC-007 - Definir le contrat de synchronisation par entite
 
-- Statut: `Backlog`
+- Statut: `Done`
 - Priorite: `P0`
 - Taille: `M`
 - Type: `Backend`
@@ -248,6 +248,10 @@ Done when:
   - normaliser `clientMutationId`
 - Criteres d'acceptation:
   - chaque entite a une regle de sync documentee et testable
+- Validation:
+  - 2026-04-15: contrat de sync formalise dans `lib/offline/sync-contract.ts`
+  - 2026-04-15: documentation ajoutee dans `docs/sync-contract.md`
+  - 2026-04-15: `pnpm typecheck` et `pnpm build` verts apres alignement des IDs seeds locales/Supabase
 
 ### YC-008 - Implementer la vraie sync queue Dexie -> Supabase
 
@@ -570,6 +574,15 @@ Done when:
 
 ## Phase 7 - Coach IA et recommandations controlees
 
+### Rappel deployment IA
+
+- Avant toute validation hebergee des features IA, deployer les Edge Functions `coach-chat`, `analyze-meal-photo`, `generate-weekly-summary`, `generate-contextual-recommendation` et `apply-accepted-recommendation`.
+- Verifier que les secrets Supabase sont bien en place au moment du deploiement:
+  - `YCOACH_ENCRYPTION_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY` injectee automatiquement par Supabase pour les Edge Functions hebergees
+- Verifier aussi que les variables frontend Vercel pointent vers le bon projet Supabase (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
+- Ne pas considerer une feature IA comme "Done" tant que la fonction distante correspondante n'est pas deployee et testee sur l'environnement cible.
+
 ### YC-028 - Enregistrer et chiffrer correctement la cle OpenAI utilisateur
 
 - Statut: `Backlog`
@@ -709,6 +722,7 @@ Done when:
   - checklist de securite
   - checklist de support
   - checklist de monitoring post-release
+  - checklist de deploiement Supabase Edge Functions et secrets IA
 - Criteres d'acceptation:
   - une release candidate peut etre validee avec une checklist signee
 

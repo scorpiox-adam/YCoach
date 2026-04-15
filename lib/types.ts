@@ -1,6 +1,15 @@
 export type Goal = "weight_loss" | "muscle_gain" | "recomposition" | "performance";
 export type Level = "beginner" | "intermediate" | "advanced";
 export type SyncStatus = "queued" | "syncing" | "synced" | "failed";
+export type SyncEntity =
+  | "user_profiles"
+  | "user_settings"
+  | "training_plans"
+  | "planned_workouts"
+  | "workout_sessions"
+  | "meal_entries"
+  | "progress_checkins"
+  | "reminders";
 export type RecommendationStatus = "proposed" | "accepted" | "refused";
 export type MealSource = "manual" | "ai";
 export type EntityOrigin = "standard" | "custom";
@@ -185,12 +194,13 @@ export type WeeklySummary = {
 
 export type SyncQueueItem = {
   id: string;
-  entity: string;
+  entity: SyncEntity;
   action: "create" | "update" | "delete" | "sync_ai";
   payload: Record<string, unknown>;
   attempts: number;
   lastAttemptAt: string | null;
   status: SyncStatus;
   clientMutationId: string;
+  createdAt: string;
+  lastError: string | null;
 };
-

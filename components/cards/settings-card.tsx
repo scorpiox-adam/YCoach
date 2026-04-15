@@ -37,7 +37,7 @@ export function SettingsCard() {
       entity: "user_settings",
       action: "update",
       payload: {
-        openAiKeyMasked: masked
+        settingsId: identityKey
       }
     });
 

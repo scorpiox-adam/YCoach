@@ -73,10 +73,15 @@ export function WorkoutSessionLogger({ workoutId }: { workoutId: string }) {
       entity: "workout_sessions",
       action: "create",
       payload: {
-        sessionId,
-        plannedWorkoutId: workout.id,
-        notes,
-        sets: draftSets
+        sessionId
+      }
+    });
+
+    await enqueueSyncItem({
+      entity: "planned_workouts",
+      action: "update",
+      payload: {
+        workoutId: workout.id
       }
     });
 
@@ -170,4 +175,3 @@ export function WorkoutSessionLogger({ workoutId }: { workoutId: string }) {
     </div>
   );
 }
-

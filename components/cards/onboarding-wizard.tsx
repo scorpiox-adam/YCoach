@@ -148,15 +148,31 @@ export function OnboardingWizard() {
           entity: "user_profiles",
           action: "update",
           payload: {
-            goal,
-            level,
-            frequency,
-            equipment,
-            weight,
-            height,
-            age,
-            habits,
-            constraints
+            profileId: identityKey
+          }
+        });
+
+        await enqueueSyncItem({
+          entity: "training_plans",
+          action: "update",
+          payload: {
+            planId: generatedPlanId
+          }
+        });
+
+        await enqueueSyncItem({
+          entity: "planned_workouts",
+          action: "update",
+          payload: {
+            planId: generatedPlanId
+          }
+        });
+
+        await enqueueSyncItem({
+          entity: "reminders",
+          action: "update",
+          payload: {
+            source: "onboarding"
           }
         });
 

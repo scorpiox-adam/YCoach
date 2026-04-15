@@ -1,8 +1,9 @@
 "use client";
 
-import { WifiOff, UploadCloud, ShieldCheck } from "lucide-react";
+import { AlertTriangle, RotateCcw, ShieldCheck, UploadCloud, WifiOff } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { fr } from "@/lib/i18n/fr";
 import { useAppShellStore } from "@/lib/store/use-app-shell-store";
 
@@ -15,6 +16,7 @@ export function AppHeader({
   eyebrow?: string;
   action?: React.ReactNode;
 }) {
+  const retrySync = useAppShellStore((state) => state.retrySync);
   const syncBadge = useAppShellStore((state) => state.syncBadge);
 
   const badgeMap = {
@@ -27,6 +29,11 @@ export function AppHeader({
       label: fr.syncPendingBadge,
       tone: "accent" as const,
       icon: <UploadCloud className="h-3.5 w-3.5" />
+    },
+    sync_failed: {
+      label: fr.syncFailedBadge,
+      tone: "danger" as const,
+      icon: <AlertTriangle className="h-3.5 w-3.5" />
     },
     synced: {
       label: fr.syncedBadge,
@@ -55,9 +62,14 @@ export function AppHeader({
           {current.icon}
           {current.label}
         </Badge>
+        {syncBadge === "sync_failed" && retrySync ? (
+          <Button variant="secondary" size="sm" className="gap-2" onClick={retrySync}>
+            <RotateCcw className="h-4 w-4" />
+            {fr.syncRetryLabel}
+          </Button>
+        ) : null}
         {action}
       </div>
     </header>
   );
 }
-

@@ -63,9 +63,7 @@ export function MealComposerCard() {
       entity: "meal_entries",
       action: "create",
       payload: {
-        entryId,
-        foodId: food.id,
-        mealName
+        entryId
       }
     });
 
@@ -134,4 +132,3 @@ export function MealComposerCard() {
     </Card>
   );
 }
-

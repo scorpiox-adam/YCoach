@@ -60,7 +60,7 @@ export const nutritionTarget = computeNutritionTarget({
 
 export const exercises: Exercise[] = [
   {
-    id: "ex-squat",
+    id: "00000000-0000-0000-0000-000000000101",
     name: "Squat barre",
     category: "Force",
     muscleGroup: "Quadriceps",
@@ -71,7 +71,7 @@ export const exercises: Exercise[] = [
     origin: "standard"
   },
   {
-    id: "ex-bench",
+    id: "00000000-0000-0000-0000-000000000102",
     name: "Développé couché",
     category: "Force",
     muscleGroup: "Pectoraux",
@@ -82,7 +82,7 @@ export const exercises: Exercise[] = [
     origin: "standard"
   },
   {
-    id: "ex-row",
+    id: "00000000-0000-0000-0000-000000000105",
     name: "Rowing unilatéral",
     category: "Force",
     muscleGroup: "Dos",
@@ -93,7 +93,7 @@ export const exercises: Exercise[] = [
     origin: "standard"
   },
   {
-    id: "ex-rdl",
+    id: "00000000-0000-0000-0000-000000000103",
     name: "Soulevé de terre roumain",
     category: "Force",
     muscleGroup: "Ischio-jambiers",
@@ -104,7 +104,7 @@ export const exercises: Exercise[] = [
     origin: "standard"
   },
   {
-    id: "ex-bike",
+    id: "00000000-0000-0000-0000-000000000110",
     name: "Vélo zone 2",
     category: "Cardio",
     muscleGroup: "Corps entier",
@@ -134,7 +134,11 @@ export const plannedWorkouts: PlannedWorkout[] = [
     dayLabel: "Aujourd'hui",
     date: dayOffset(0),
     status: "planned",
-    exerciseIds: ["ex-squat", "ex-rdl", "ex-bike"],
+    exerciseIds: [
+      "00000000-0000-0000-0000-000000000101",
+      "00000000-0000-0000-0000-000000000103",
+      "00000000-0000-0000-0000-000000000110"
+    ],
     durationMinutes: 70
   },
   {
@@ -143,7 +147,11 @@ export const plannedWorkouts: PlannedWorkout[] = [
     dayLabel: "Jeudi",
     date: dayOffset(2),
     status: "planned",
-    exerciseIds: ["ex-bench", "ex-row", "ex-custom-landmine"],
+    exerciseIds: [
+      "00000000-0000-0000-0000-000000000102",
+      "00000000-0000-0000-0000-000000000105",
+      "00000000-0000-0000-0000-000000000104"
+    ],
     durationMinutes: 65
   },
   {
@@ -152,7 +160,7 @@ export const plannedWorkouts: PlannedWorkout[] = [
     dayLabel: "Samedi",
     date: dayOffset(4),
     status: "planned",
-    exerciseIds: ["ex-bike"],
+    exerciseIds: ["00000000-0000-0000-0000-000000000110"],
     durationMinutes: 40
   }
 ];
@@ -168,7 +176,7 @@ export const trainingPlan: TrainingPlan = {
 
 export const trainingTemplates: TrainingTemplate[] = [
   {
-    id: "tpl-full-body",
+    id: "00000000-0000-0000-0000-000000000301",
     name: "Full Body Fondation",
     goal: "muscle_gain",
     level: "beginner",
@@ -176,7 +184,7 @@ export const trainingTemplates: TrainingTemplate[] = [
     sessions: plannedWorkouts
   },
   {
-    id: "tpl-upper-lower",
+    id: "00000000-0000-0000-0000-000000000303",
     name: "Upper Lower",
     goal: "recomposition",
     level: "intermediate",
@@ -184,7 +192,7 @@ export const trainingTemplates: TrainingTemplate[] = [
     sessions: plannedWorkouts
   },
   {
-    id: "tpl-cardio",
+    id: "00000000-0000-0000-0000-000000000304",
     name: "Cardio Endurance",
     goal: "performance",
     level: "all",
@@ -202,20 +210,101 @@ export const workoutSessions: WorkoutSession[] = [
     notes: "Très bonnes sensations sur les jambes, repos un peu court sur le dernier bloc.",
     summary: "Volume validé, charge stable, cardio facile en fin.",
     sets: [
-      { id: "set-1", exerciseId: "ex-squat", setNumber: 1, reps: 6, loadKg: 92.5, restSeconds: 150, effort: 7, completed: true },
-      { id: "set-2", exerciseId: "ex-squat", setNumber: 2, reps: 6, loadKg: 92.5, restSeconds: 150, effort: 8, completed: true },
-      { id: "set-3", exerciseId: "ex-rdl", setNumber: 1, reps: 8, loadKg: 80, restSeconds: 120, effort: 7, completed: true }
+      {
+        id: "set-1",
+        exerciseId: "00000000-0000-0000-0000-000000000101",
+        setNumber: 1,
+        reps: 6,
+        loadKg: 92.5,
+        restSeconds: 150,
+        effort: 7,
+        completed: true
+      },
+      {
+        id: "set-2",
+        exerciseId: "00000000-0000-0000-0000-000000000101",
+        setNumber: 2,
+        reps: 6,
+        loadKg: 92.5,
+        restSeconds: 150,
+        effort: 8,
+        completed: true
+      },
+      {
+        id: "set-3",
+        exerciseId: "00000000-0000-0000-0000-000000000103",
+        setNumber: 1,
+        reps: 8,
+        loadKg: 80,
+        restSeconds: 120,
+        effort: 7,
+        completed: true
+      }
     ]
   }
 ];
 
 export const foodItems: FoodItem[] = [
-  { id: "food-skyr", name: "Skyr nature", calories: 64, protein: 11, carbs: 3.6, fats: 0.2, portionGrams: 150, origin: "standard" },
-  { id: "food-oats", name: "Flocons d'avoine", calories: 372, protein: 13, carbs: 58, fats: 7, portionGrams: 50, origin: "standard" },
-  { id: "food-banana", name: "Banane", calories: 89, protein: 1.1, carbs: 20, fats: 0.3, portionGrams: 120, origin: "standard" },
-  { id: "food-rice", name: "Riz basmati cuit", calories: 130, protein: 2.7, carbs: 28, fats: 0.3, portionGrams: 180, origin: "standard" },
-  { id: "food-chicken", name: "Poulet grillé", calories: 165, protein: 31, carbs: 0, fats: 3.6, portionGrams: 150, origin: "standard" },
-  { id: "food-olive-oil", name: "Huile d'olive", calories: 884, protein: 0, carbs: 0, fats: 100, portionGrams: 10, origin: "standard" },
+  {
+    id: "00000000-0000-0000-0000-000000000205",
+    name: "Skyr nature",
+    calories: 64,
+    protein: 11,
+    carbs: 3.6,
+    fats: 0.2,
+    portionGrams: 150,
+    origin: "standard"
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000204",
+    name: "Flocons d'avoine",
+    calories: 372,
+    protein: 13,
+    carbs: 58,
+    fats: 7,
+    portionGrams: 50,
+    origin: "standard"
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000206",
+    name: "Banane",
+    calories: 89,
+    protein: 1.1,
+    carbs: 20,
+    fats: 0.3,
+    portionGrams: 120,
+    origin: "standard"
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000202",
+    name: "Riz basmati cuit",
+    calories: 130,
+    protein: 2.7,
+    carbs: 28,
+    fats: 0.3,
+    portionGrams: 180,
+    origin: "standard"
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000201",
+    name: "Poulet grillé",
+    calories: 165,
+    protein: 31,
+    carbs: 0,
+    fats: 3.6,
+    portionGrams: 150,
+    origin: "standard"
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000210",
+    name: "Huile d'olive",
+    calories: 884,
+    protein: 0,
+    carbs: 0,
+    fats: 100,
+    portionGrams: 10,
+    origin: "standard"
+  },
   { id: "food-yogurt-bowl", name: "Bol yaourt maison", calories: 146, protein: 8, carbs: 18, fats: 3, portionGrams: 220, origin: "custom" }
 ];
 
@@ -327,4 +416,3 @@ export const weeklySummary: WeeklySummary = {
     }
   ]
 };
-
