@@ -24,9 +24,9 @@ export default function AuthCallbackPage() {
   const nextPath = sanitizeInternalPath(searchParams.get("next"), "/agenda");
 
   useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
+    const supabaseClient = createSupabaseBrowserClient();
 
-    if (!supabase) {
+    if (!supabaseClient) {
       setFeedback(getSupabaseConfigErrorMessage());
       return;
     }
@@ -45,7 +45,7 @@ export default function AuthCallbackPage() {
     async function redirectIfSessionReady() {
       const {
         data: { session }
-      } = await supabase.auth.getSession();
+      } = await supabaseClient.auth.getSession();
 
       if (!session?.user || cancelled) {
         return false;
@@ -55,7 +55,7 @@ export default function AuthCallbackPage() {
       return true;
     }
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: listener } = supabaseClient.auth.onAuthStateChange((event, session) => {
       if (cancelled || !session?.user) {
         return;
       }
@@ -72,7 +72,7 @@ export default function AuthCallbackPage() {
 
     void (async () => {
       if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
 
         if (error) {
           setFeedback(getFriendlyAuthErrorMessage(error));

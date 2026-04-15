@@ -26,9 +26,9 @@ export function ResetPasswordCard() {
   const [identity, setIdentity] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
+    const supabaseClient = createSupabaseBrowserClient();
 
-    if (!supabase) {
+    if (!supabaseClient) {
       setFeedback(getSupabaseConfigErrorMessage());
       return;
     }
@@ -38,7 +38,7 @@ export function ResetPasswordCard() {
     async function hydrateSession() {
       const {
         data: { session }
-      } = await supabase.auth.getSession();
+      } = await supabaseClient.auth.getSession();
 
       if (cancelled) {
         return;
@@ -60,7 +60,7 @@ export function ResetPasswordCard() {
 
     void hydrateSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: listener } = supabaseClient.auth.onAuthStateChange((event, session) => {
       if (cancelled || !session?.user) {
         return;
       }
