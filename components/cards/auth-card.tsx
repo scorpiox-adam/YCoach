@@ -9,8 +9,11 @@ import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  buildBrowserRedirectUrl,
+  getAuthIdentityKey,
+  getFriendlyAuthErrorMessage,
+  getPostAuthRedirectPath,
   persistLocalAuth,
-  readOnboardingComplete,
   setOnboardingComplete
 } from "@/lib/auth/client-auth";
 import {
@@ -78,39 +81,63 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
             persistLocalAuth(email);
 
             if (mode === "signup") {
-              setOnboardingComplete(false);
+              setOnboardingComplete(false, email);
             }
 
             setFeedback("Mode démo local actif. Désactive NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH dès que Supabase est branché.");
-            router.push(mode === "signup" || !readOnboardingComplete() ? "/onboarding" : "/agenda");
+            router.replace(mode === "signup" ? "/onboarding" : getPostAuthRedirectPath(email));
             return;
           }
 
           if (mode === "login") {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
-              setFeedback(error.message);
+              setFeedback(getFriendlyAuthErrorMessage(error));
               return;
             }
-            router.push(readOnboardingComplete() ? "/agenda" : "/onboarding");
+            router.replace(getPostAuthRedirectPath(getAuthIdentityKey({
+              userId: data.user?.id ?? null,
+              email: data.user?.email ?? email
+            })));
             return;
           }
 
           if (mode === "signup") {
-            const { error } = await supabase.auth.signUp({ email, password });
+            const { data, error } = await supabase.auth.signUp({
+              email,
+              password,
+              options: {
+                emailRedirectTo: buildBrowserRedirectUrl("/auth/callback?next=/onboarding")
+              }
+            });
             if (error) {
-              setFeedback(error.message);
+              setFeedback(getFriendlyAuthErrorMessage(error));
               return;
             }
-            setOnboardingComplete(false);
-            router.push("/onboarding");
+
+            setOnboardingComplete(
+              false,
+              getAuthIdentityKey({
+                userId: data.user?.id ?? null,
+                email: data.user?.email ?? email
+              })
+            );
+
+            if (data.session?.user) {
+              router.replace("/onboarding");
+              return;
+            }
+
+            setFeedback("Compte créé. Vérifie ta boîte mail pour confirmer ton adresse avant de continuer.");
             return;
           }
 
           const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/login`
+            redirectTo: buildBrowserRedirectUrl("/auth/callback?next=/reset-password")
           });
-          setFeedback(error ? error.message : "Lien envoyé. Vérifie ta boîte mail.");
+          setFeedback(
+            error ? getFriendlyAuthErrorMessage(error) : "Lien envoyé. Vérifie ta boîte mail pour choisir un nouveau mot de passe."
+          );
         } finally {
           setPending(false);
         }

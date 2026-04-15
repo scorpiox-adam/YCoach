@@ -159,7 +159,7 @@ Done when:
 
 ### YC-004 - Supprimer le fallback auth de demonstration en production
 
-- Statut: `Backlog`
+- Statut: `Done`
 - Priorite: `P0`
 - Taille: `M`
 - Type: `Frontend`
@@ -175,6 +175,10 @@ Done when:
 - Criteres d'acceptation:
   - en prod, sans Supabase branche, l'app affiche une erreur claire
   - en prod, aucun utilisateur ne passe via une session locale cachee
+- Validation:
+  - 2026-04-15: le mode demo local est limite a `development` uniquement
+  - 2026-04-15: l'ecran d'auth bloque la soumission et affiche une erreur claire si Supabase n'est pas configure
+  - 2026-04-15: CI GitHub verte sur le commit `601970256989be34a6da0212f8bcb5a03c02408a`
 
 ### YC-005 - Finaliser les flux auth Supabase de bout en bout
 

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import {
+  getAuthIdentityKey,
   getClientAuthState,
   readOnboardingComplete
 } from "@/lib/auth/client-auth";
@@ -14,7 +15,7 @@ export default function HomePage() {
   useEffect(() => {
     void (async () => {
       const authState = await getClientAuthState();
-      const onboardingComplete = readOnboardingComplete();
+      const onboardingComplete = readOnboardingComplete(getAuthIdentityKey(authState));
 
       if (!authState.isAuthenticated) {
         router.replace("/login");

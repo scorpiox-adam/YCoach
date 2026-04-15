@@ -22,8 +22,13 @@ file_size_limit = "20MiB"
 
 [auth]
 enabled = true
-site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = ["http://127.0.0.1:3000/login"]
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "http://localhost:3000/login",
+  "http://localhost:3000/auth/callback",
+  "http://127.0.0.1:3000/login",
+  "http://127.0.0.1:3000/auth/callback",
+]
 jwt_expiry = 3600
 enable_signup = true
 
@@ -45,4 +50,3 @@ verify_jwt = true
 
 [functions.apply-accepted-recommendation]
 verify_jwt = true
-

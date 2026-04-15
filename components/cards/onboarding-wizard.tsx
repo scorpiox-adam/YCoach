@@ -10,7 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { setOnboardingComplete } from "@/lib/auth/client-auth";
+import {
+  getAuthIdentityKey,
+  getClientAuthState,
+  setOnboardingComplete
+} from "@/lib/auth/client-auth";
 import { computeNutritionTarget } from "@/lib/formulas";
 import { db } from "@/lib/offline/db";
 import { enqueueSyncItem } from "@/lib/offline/sync-engine";
@@ -146,7 +150,8 @@ export function OnboardingWizard() {
           }
         });
 
-        setOnboardingComplete(true);
+        const authState = await getClientAuthState();
+        setOnboardingComplete(true, getAuthIdentityKey(authState));
         router.push("/agenda");
       })();
     });

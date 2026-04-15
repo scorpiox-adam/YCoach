@@ -23,7 +23,7 @@ export function SignOutCard() {
           Déconnexion
         </p>
         <p className="text-sm leading-6 text-muted-foreground">
-          Pratique pour rejouer le parcours premier lancement sans effacer manuellement le navigateur.
+          Tu fermes simplement la session active, sans supprimer les autres reglages locaux deja poses pour ce compte.
         </p>
       </div>
       <Button variant="secondary" onClick={handleSignOut}>
@@ -32,4 +32,3 @@ export function SignOutCard() {
     </Card>
   );
 }
-

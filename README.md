@@ -105,8 +105,19 @@ Ports configurés dans `supabase/config.toml`:
 
 Auth local autorise actuellement:
 
+- `http://localhost:3000`
+- `http://localhost:3000/login`
+- `http://localhost:3000/auth/callback`
 - `http://127.0.0.1:3000`
 - `http://127.0.0.1:3000/login`
+- `http://127.0.0.1:3000/auth/callback`
+
+Pour les environnements heberges, pense aussi a autoriser dans le dashboard Supabase Auth les URLs de retour utilisees par l'app:
+
+- `https://ton-domaine.com/auth/callback`
+- `https://ton-domaine.vercel.app/auth/callback`
+
+Sans ces URLs autorisees, les emails de confirmation et de recuperation de mot de passe ne pourront pas revenir correctement dans l'application.
 
 ## Commandes utiles
 

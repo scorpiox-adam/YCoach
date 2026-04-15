@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
+  getAuthIdentityKey,
   getClientAuthState,
   readOnboardingComplete
 } from "@/lib/auth/client-auth";
@@ -40,7 +41,7 @@ export function AuthPageGuard({ children }: { children: React.ReactNode }) {
 
     void (async () => {
       const authState = await getClientAuthState();
-      const onboardingComplete = readOnboardingComplete();
+      const onboardingComplete = readOnboardingComplete(getAuthIdentityKey(authState));
 
       if (authState.isAuthenticated) {
         router.replace(onboardingComplete ? "/agenda" : "/onboarding");
@@ -79,7 +80,7 @@ export function OnboardingPageGuard({ children }: { children: React.ReactNode })
 
     void (async () => {
       const authState = await getClientAuthState();
-      const onboardingComplete = readOnboardingComplete();
+      const onboardingComplete = readOnboardingComplete(getAuthIdentityKey(authState));
 
       if (!authState.isAuthenticated) {
         router.replace("/login");
@@ -123,7 +124,7 @@ export function AppPageGuard({ children }: { children: React.ReactNode }) {
 
     void (async () => {
       const authState = await getClientAuthState();
-      const onboardingComplete = readOnboardingComplete();
+      const onboardingComplete = readOnboardingComplete(getAuthIdentityKey(authState));
 
       if (!authState.isAuthenticated) {
         router.replace("/login");
@@ -156,4 +157,3 @@ export function AppPageGuard({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
-

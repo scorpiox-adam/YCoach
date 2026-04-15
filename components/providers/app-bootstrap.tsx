@@ -3,7 +3,11 @@
 import { useEffect } from "react";
 
 import { useNetworkStatus } from "@/hooks/use-network-status";
-import { getClientAuthState, readOnboardingComplete } from "@/lib/auth/client-auth";
+import {
+  getAuthIdentityKey,
+  getClientAuthState,
+  readOnboardingComplete
+} from "@/lib/auth/client-auth";
 import { db, primeLocalCache, resetUserScopedData } from "@/lib/offline/db";
 import { flushSyncQueue } from "@/lib/offline/sync-engine";
 import { useAppShellStore } from "@/lib/store/use-app-shell-store";
@@ -17,7 +21,7 @@ export function AppBootstrap() {
       await primeLocalCache();
 
       const authState = await getClientAuthState();
-      const onboardingComplete = readOnboardingComplete();
+      const onboardingComplete = readOnboardingComplete(getAuthIdentityKey(authState));
 
       if (!authState.isAuthenticated || !onboardingComplete) {
         await resetUserScopedData();
