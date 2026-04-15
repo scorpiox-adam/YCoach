@@ -1,0 +1,138 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  getFriendlyAuthErrorMessage,
+  sanitizeInternalPath
+} from "@/lib/auth/client-auth";
+import { getSupabaseConfigErrorMessage } from "@/lib/config/env";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+
+type AuthCallbackCardProps = {
+  code: string | null;
+  type: string | null;
+  errorDescription: string | null;
+  nextPath: string | null;
+};
+
+export function AuthCallbackCard({
+  code,
+  type,
+  errorDescription,
+  nextPath
+}: AuthCallbackCardProps) {
+  const router = useRouter();
+  const [feedback, setFeedback] = useState("Validation du lien en cours...");
+
+  useEffect(() => {
+    const supabaseClient = createSupabaseBrowserClient();
+
+    if (!supabaseClient) {
+      setFeedback(getSupabaseConfigErrorMessage());
+      return;
+    }
+
+    const client = supabaseClient;
+
+    if (errorDescription) {
+      setFeedback(errorDescription);
+      return;
+    }
+
+    let cancelled = false;
+    let fallbackTimer: number | undefined;
+
+    const resolvedNextPath =
+      type === "recovery" || sanitizeInternalPath(nextPath, "/agenda") === "/reset-password"
+        ? "/reset-password"
+        : sanitizeInternalPath(nextPath, "/agenda");
+
+    async function redirectIfSessionReady() {
+      const {
+        data: { session }
+      } = await client.auth.getSession();
+
+      if (!session?.user || cancelled) {
+        return false;
+      }
+
+      router.replace(resolvedNextPath);
+      return true;
+    }
+
+    const { data: listener } = client.auth.onAuthStateChange((event, session) => {
+      if (cancelled || !session?.user) {
+        return;
+      }
+
+      if (event === "PASSWORD_RECOVERY") {
+        router.replace("/reset-password");
+        return;
+      }
+
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        router.replace(resolvedNextPath);
+      }
+    });
+
+    void (async () => {
+      if (code) {
+        const { error } = await client.auth.exchangeCodeForSession(code);
+
+        if (error) {
+          setFeedback(getFriendlyAuthErrorMessage(error));
+          return;
+        }
+
+        router.replace(resolvedNextPath);
+        return;
+      }
+
+      if (await redirectIfSessionReady()) {
+        return;
+      }
+
+      if (typeof window !== "undefined" && window.location.hash.includes("access_token")) {
+        fallbackTimer = window.setTimeout(() => {
+          void redirectIfSessionReady().then((didRedirect) => {
+            if (!didRedirect && !cancelled) {
+              setFeedback("Le lien a expire ou n'est plus valide. Demande un nouveau lien pour continuer.");
+            }
+          });
+        }, 300);
+        return;
+      }
+
+      setFeedback("Le lien est invalide ou incomplet. Demande un nouvel email pour continuer.");
+    })();
+
+    return () => {
+      cancelled = true;
+      listener.subscription.unsubscribe();
+
+      if (fallbackTimer) {
+        window.clearTimeout(fallbackTimer);
+      }
+    };
+  }, [code, errorDescription, nextPath, router, type]);
+
+  return (
+    <Card className="space-y-4 p-6">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        YCoach
+      </p>
+      <h1 className="font-display text-2xl font-semibold tracking-[-0.05em] text-foreground">
+        Verification du lien
+      </h1>
+      <p className="text-sm leading-6 text-muted-foreground">{feedback}</p>
+      <Link href="/login" className={buttonVariants({ variant: "secondary", className: "w-full" })}>
+        Retour a la connexion
+      </Link>
+    </Card>
+  );
+}
