@@ -33,12 +33,14 @@ export function ResetPasswordCard() {
       return;
     }
 
+    const client = supabaseClient;
+
     let cancelled = false;
 
     async function hydrateSession() {
       const {
         data: { session }
-      } = await supabaseClient.auth.getSession();
+      } = await client.auth.getSession();
 
       if (cancelled) {
         return;
@@ -60,7 +62,7 @@ export function ResetPasswordCard() {
 
     void hydrateSession();
 
-    const { data: listener } = supabaseClient.auth.onAuthStateChange((event, session) => {
+    const { data: listener } = client.auth.onAuthStateChange((event, session) => {
       if (cancelled || !session?.user) {
         return;
       }

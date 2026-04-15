@@ -31,6 +31,8 @@ export default function AuthCallbackPage() {
       return;
     }
 
+    const client = supabaseClient;
+
     if (errorDescription) {
       setFeedback(errorDescription);
       return;
@@ -45,7 +47,7 @@ export default function AuthCallbackPage() {
     async function redirectIfSessionReady() {
       const {
         data: { session }
-      } = await supabaseClient.auth.getSession();
+      } = await client.auth.getSession();
 
       if (!session?.user || cancelled) {
         return false;
@@ -55,7 +57,7 @@ export default function AuthCallbackPage() {
       return true;
     }
 
-    const { data: listener } = supabaseClient.auth.onAuthStateChange((event, session) => {
+    const { data: listener } = client.auth.onAuthStateChange((event, session) => {
       if (cancelled || !session?.user) {
         return;
       }
@@ -72,7 +74,7 @@ export default function AuthCallbackPage() {
 
     void (async () => {
       if (code) {
-        const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
+        const { error } = await client.auth.exchangeCodeForSession(code);
 
         if (error) {
           setFeedback(getFriendlyAuthErrorMessage(error));
