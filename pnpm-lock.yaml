@@ -9,71 +9,71 @@ importers:
   .:
     dependencies:
       '@supabase/ssr':
-        specifier: ^0.5.2
+        specifier: 0.5.2
         version: 0.5.2(@supabase/supabase-js@2.103.0)
       '@supabase/supabase-js':
-        specifier: ^2.49.0
+        specifier: 2.103.0
         version: 2.103.0
       '@tanstack/react-query':
-        specifier: ^5.59.0
+        specifier: 5.99.0
         version: 5.99.0(react@18.3.1)
       clsx:
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1
       dexie:
-        specifier: ^4.0.10
+        specifier: 4.4.2
         version: 4.4.2
       dexie-react-hooks:
-        specifier: ^1.1.7
+        specifier: 1.1.7
         version: 1.1.7(@types/react@18.3.28)(dexie@4.4.2)(react@18.3.1)
       framer-motion:
-        specifier: ^11.11.11
+        specifier: 11.18.2
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       lucide-react:
-        specifier: ^0.454.0
+        specifier: 0.454.0
         version: 0.454.0(react@18.3.1)
       next:
-        specifier: 14.x
+        specifier: 14.2.35
         version: 14.2.35(@babel/core@7.29.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-pwa:
-        specifier: ^5.6.0
+        specifier: 5.6.0
         version: 5.6.0(@babel/core@7.29.0)(next@14.2.35(@babel/core@7.29.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.106.1)
       react:
-        specifier: 18.x
+        specifier: 18.3.1
         version: 18.3.1
       react-dom:
-        specifier: 18.x
+        specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       tailwind-merge:
-        specifier: ^2.5.4
+        specifier: 2.6.1
         version: 2.6.1
       uuid:
-        specifier: ^11.0.5
+        specifier: 11.1.0
         version: 11.1.0
       zustand:
-        specifier: ^5.0.1
+        specifier: 5.0.12
         version: 5.0.12(@types/react@18.3.28)(react@18.3.1)
     devDependencies:
       '@types/node':
-        specifier: ^22.8.6
+        specifier: 22.19.17
         version: 22.19.17
       '@types/react':
-        specifier: ^18.3.3
+        specifier: 18.3.28
         version: 18.3.28
       '@types/react-dom':
-        specifier: ^18.3.0
+        specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
       autoprefixer:
-        specifier: ^10.4.20
+        specifier: 10.5.0
         version: 10.5.0(postcss@8.5.9)
       postcss:
-        specifier: ^8.4.47
+        specifier: 8.5.9
         version: 8.5.9
       tailwindcss:
-        specifier: ^3.4.14
+        specifier: 3.4.19
         version: 3.4.19
       typescript:
-        specifier: ^5.6.3
+        specifier: 5.9.3
         version: 5.9.3
 
 packages:
