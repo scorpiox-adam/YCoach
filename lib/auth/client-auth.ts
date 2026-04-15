@@ -1,3 +1,4 @@
+import { getPublicAppConfig } from "@/lib/config/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const localAuthStorageKey = "ycoach.local-auth";
@@ -10,6 +11,10 @@ type LocalAuthState = {
 
 export function persistLocalAuth(email: string) {
   if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!getPublicAppConfig().localDemoAuthEnabled) {
     return;
   }
 
@@ -51,6 +56,10 @@ export function readLocalAuthState() {
     return null;
   }
 
+  if (!getPublicAppConfig().localDemoAuthEnabled) {
+    return null;
+  }
+
   const raw = window.localStorage.getItem(localAuthStorageKey);
   if (!raw) {
     return null;
@@ -64,6 +73,7 @@ export function readLocalAuthState() {
 }
 
 export async function getClientAuthState() {
+  const config = getPublicAppConfig();
   const supabase = createSupabaseBrowserClient();
 
   if (supabase) {
@@ -78,6 +88,14 @@ export async function getClientAuthState() {
         provider: "supabase" as const
       };
     }
+  }
+
+  if (!config.localDemoAuthEnabled) {
+    return {
+      isAuthenticated: false,
+      email: null,
+      provider: "supabase" as const
+    };
   }
 
   const local = readLocalAuthState();
@@ -98,4 +116,3 @@ export async function signOutClient() {
 
   clearLocalAuth();
 }
-

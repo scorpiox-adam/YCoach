@@ -130,7 +130,7 @@ Done when:
   - chaque PR ou push principal echoue si build/typecheck cassent
 - Validation:
   - 2026-04-15: workflow GitHub Actions ajoute localement dans `.github/workflows/ci.yml`
-  - premier run GitHub a verifier apres push
+  - 2026-04-15: premier run GitHub valide avec succes sur `main` pour `install`, `typecheck` et `build`
 
 ### YC-003 - Introduire une configuration d'environnement explicite
 

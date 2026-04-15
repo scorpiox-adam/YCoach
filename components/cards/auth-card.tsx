@@ -13,6 +13,10 @@ import {
   readOnboardingComplete,
   setOnboardingComplete
 } from "@/lib/auth/client-auth";
+import {
+  getPublicAppConfig,
+  getSupabaseConfigErrorMessage
+} from "@/lib/config/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type AuthMode = "login" | "signup" | "forgot-password";
@@ -41,7 +45,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
     },
     "forgot-password": {
       title: "Récupère ton accès",
-      description: "On t'envoie un lien de récupération par email dès que ton projet Supabase est branché.",
+      description: "On t'envoie un lien de récupération par email quand Supabase Auth est configuré.",
       primaryLabel: "Envoyer le lien",
       secondaryLabel: "Retour à la connexion",
       secondaryHref: "/login"
@@ -55,17 +59,28 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
     startTransition(() => {
       void (async () => {
+        const config = getPublicAppConfig();
         const supabase = createSupabaseBrowserClient();
 
         try {
           if (!supabase) {
+            if (!config.localDemoAuthEnabled) {
+              setFeedback(getSupabaseConfigErrorMessage());
+              return;
+            }
+
+            if (mode === "forgot-password") {
+              setFeedback("Mode démo local actif. La récupération par email nécessite Supabase Auth.");
+              return;
+            }
+
             persistLocalAuth(email);
 
             if (mode === "signup") {
               setOnboardingComplete(false);
             }
 
-            setFeedback("Le projet utilise encore une session locale de démonstration tant que Supabase n'est pas branché.");
+            setFeedback("Mode démo local actif. Désactive NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH dès que Supabase est branché.");
             if (mode !== "forgot-password") {
               router.push(mode === "signup" || !readOnboardingComplete() ? "/onboarding" : "/agenda");
             }
