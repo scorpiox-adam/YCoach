@@ -74,13 +74,13 @@ Important:
 - ne mets jamais `SUPABASE_SERVICE_ROLE_KEY` dans des variables publiques côté navigateur
 - pour les Edge Functions déployées, préfère `supabase secrets set ...`
 - `NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH=true` active explicitement un mode démo local UI-only
-- ce mode démo est ignoré en `production`
+- ce mode démo n'est autorisé qu'en `development`, jamais en `preview` ou `production`
 
 ## Comportement de configuration
 
 - si `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` sont présents: l'app utilise Supabase
 - si Supabase n'est pas configuré et que `NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH=false`: l'app affiche une erreur de configuration claire
-- si Supabase n'est pas configuré et que `NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH=true`: l'app autorise explicitement un mode démo local
+- si Supabase n'est pas configuré et que `NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH=true`: l'app autorise explicitement un mode démo local en `development` uniquement
 
 Le endpoint `GET /api/health` expose aussi un diagnostic non sensible du mode courant:
 

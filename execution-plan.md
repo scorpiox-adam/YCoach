@@ -134,7 +134,7 @@ Done when:
 
 ### YC-003 - Introduire une configuration d'environnement explicite
 
-- Statut: `Backlog`
+- Statut: `Done`
 - Priorite: `P0`
 - Taille: `S`
 - Type: `Infra`
@@ -150,6 +150,10 @@ Done when:
   - clarifier comportement dev vs prod
 - Criteres d'acceptation:
   - aucun developpeur n'a besoin de deviner les variables a fournir
+- Validation:
+  - 2026-04-15: configuration publique centralisee dans `lib/config/env.ts`
+  - 2026-04-15: `.env.example`, `README.md` et `/api/health` mis a jour
+  - 2026-04-15: CI GitHub verte apres push de la nouvelle configuration
 
 ## Phase 1 - Auth reelle et bootstrap utilisateur
 

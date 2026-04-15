@@ -22,11 +22,13 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 type AuthMode = "login" | "signup" | "forgot-password";
 
 export function AuthCard({ mode }: { mode: AuthMode }) {
+  const config = getPublicAppConfig();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const authUnavailable = !config.supabaseConfigured && !config.localDemoAuthEnabled;
 
   const copy = {
     "login": {
@@ -59,7 +61,6 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
     startTransition(() => {
       void (async () => {
-        const config = getPublicAppConfig();
         const supabase = createSupabaseBrowserClient();
 
         try {
@@ -125,6 +126,12 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
+        {authUnavailable ? (
+          <p className="rounded-2xl bg-white/70 px-4 py-3 text-sm leading-6 text-muted-foreground">
+            {getSupabaseConfigErrorMessage()}
+          </p>
+        ) : null}
+
         <div>
           <Label htmlFor={`${mode}-email`}>Email</Label>
           <Input
@@ -133,6 +140,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
             placeholder="toi@exemple.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            disabled={authUnavailable}
             required
           />
         </div>
@@ -146,6 +154,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
               placeholder="Au moins 8 caractères"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              disabled={authUnavailable}
               required
             />
           </div>
@@ -158,7 +167,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
         ) : null}
 
         <div className="space-y-3">
-          <Button className="w-full" type="submit" disabled={pending}>
+          <Button className="w-full" type="submit" disabled={pending || authUnavailable}>
             {pending ? "Traitement en cours..." : copy.primaryLabel}
           </Button>
           <Link

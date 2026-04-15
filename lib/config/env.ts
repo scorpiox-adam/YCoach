@@ -14,16 +14,20 @@ function parseBoolean(value: string | undefined) {
   return value === "true" || value === "1";
 }
 
-function normalizeAppEnv(value: string | undefined): AppEnv {
-  if (value === "production" || value === "preview") {
-    return value;
+function normalizeAppEnv(value: string | undefined, nodeEnv: string | undefined): AppEnv {
+  if (nodeEnv === "production") {
+    return value === "preview" ? "preview" : "production";
+  }
+
+  if (value === "preview") {
+    return "preview";
   }
 
   return "development";
 }
 
 function buildPublicAppConfig(): PublicAppConfig {
-  const appEnv = normalizeAppEnv(process.env.NEXT_PUBLIC_APP_ENV ?? process.env.NODE_ENV);
+  const appEnv = normalizeAppEnv(process.env.NEXT_PUBLIC_APP_ENV, process.env.NODE_ENV);
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? "";
   const requestedLocalDemoAuth = parseBoolean(process.env.NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH);
@@ -37,7 +41,8 @@ function buildPublicAppConfig(): PublicAppConfig {
     supabaseUrl,
     supabaseAnonKey,
     supabaseConfigured: missingPublicEnvVars.length === 0,
-    localDemoAuthEnabled: requestedLocalDemoAuth && appEnv !== "production",
+    // Demo auth is reserved for local development only.
+    localDemoAuthEnabled: requestedLocalDemoAuth && appEnv === "development",
     missingPublicEnvVars
   };
 }
