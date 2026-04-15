@@ -37,6 +37,7 @@ export function OnboardingWizard() {
   const [habits, setHabits] = useState("3 repas, collation post-training, café le matin");
   const [constraints, setConstraints] = useState("Épaule sensible sur certains angles");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const currentStepLabel = steps[step] ?? steps[0];
 
   const nutritionTarget = computeNutritionTarget({
     goal,
@@ -161,7 +162,7 @@ export function OnboardingWizard() {
 
       <Card className="space-y-6">
         <SectionHeading
-          title={steps[step]}
+          title={currentStepLabel}
           description="On garde le flux court et utile. Tout ce qui n'est pas indispensable pourra être affiné plus tard."
         />
 

@@ -24,7 +24,7 @@ export async function flushSyncQueue() {
       });
     } catch (error) {
       const attemptIndex = Math.min(item.attempts, backoffSteps.length - 1);
-      await wait(backoffSteps[attemptIndex]);
+      await wait(backoffSteps[attemptIndex] ?? backoffSteps[backoffSteps.length - 1] ?? 16_000);
       await db.syncQueue.update(item.id, {
         status: item.attempts + 1 >= 5 ? "failed" : "queued"
       });
