@@ -81,9 +81,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
             }
 
             setFeedback("Mode démo local actif. Désactive NEXT_PUBLIC_ENABLE_LOCAL_DEMO_AUTH dès que Supabase est branché.");
-            if (mode !== "forgot-password") {
-              router.push(mode === "signup" || !readOnboardingComplete() ? "/onboarding" : "/agenda");
-            }
+            router.push(mode === "signup" || !readOnboardingComplete() ? "/onboarding" : "/agenda");
             return;
           }
 
