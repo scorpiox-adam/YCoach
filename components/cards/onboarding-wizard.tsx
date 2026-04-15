@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { setOnboardingComplete } from "@/lib/auth/client-auth";
 import { computeNutritionTarget } from "@/lib/formulas";
 import { db } from "@/lib/offline/db";
 import { enqueueSyncItem } from "@/lib/offline/sync-engine";
@@ -52,17 +53,81 @@ export function OnboardingWizard() {
 
     startTransition(() => {
       void (async () => {
-        await db.profile.update("user-demo", {
-          goal,
-          level,
-          equipment: equipment.split(",").map((item) => item.trim()),
-          constraints: constraints ? [constraints] : [],
-          nutritionPreferences: habits.split(",").map((item) => item.trim()),
-          weeklyAvailability: [`${frequency} séances / semaine`],
-          weightKg: Number(weight),
-          heightCm: Number(height),
-          age: Number(age)
-        });
+        const templates = await db.trainingTemplates.toArray();
+        const selectedTemplate =
+          templates.find((template) => template.goal === goal && (template.level === level || template.level === "all")) ??
+          templates[0];
+
+        const generatedPlanId = crypto.randomUUID();
+        const generatedStart = new Date();
+
+        await db.transaction(
+          "rw",
+          [
+            db.profile,
+            db.trainingPlans,
+            db.plannedWorkouts,
+            db.workoutSessions,
+            db.mealEntries,
+            db.progressCheckins,
+            db.recommendations,
+            db.weeklySummaries,
+            db.syncQueue
+          ],
+          async () => {
+            await db.trainingPlans.clear();
+            await db.plannedWorkouts.clear();
+            await db.workoutSessions.clear();
+            await db.mealEntries.clear();
+            await db.progressCheckins.clear();
+            await db.recommendations.clear();
+            await db.weeklySummaries.clear();
+            await db.syncQueue.clear();
+
+            await db.profile.update("user-demo", {
+              firstName: emailLikeName(),
+              goal,
+              level,
+              streak: 0,
+              equipment: equipment.split(",").map((item) => item.trim()).filter(Boolean),
+              constraints: constraints ? [constraints] : [],
+              nutritionPreferences: habits.split(",").map((item) => item.trim()).filter(Boolean),
+              weeklyAvailability: [`${frequency} séances / semaine`],
+              weightKg: Number(weight),
+              heightCm: Number(height),
+              age: Number(age)
+            });
+
+            await db.trainingPlans.put({
+              id: generatedPlanId,
+              userId: "user-demo",
+              version: 1,
+              templateName: selectedTemplate?.name ?? "Cadre initial",
+              status: "active",
+              weeklyStructure:
+                selectedTemplate?.sessions.map((session) => session.name) ?? [
+                  "Jour 1",
+                  "Jour 2",
+                  "Jour 3"
+                ]
+            });
+
+            await db.plannedWorkouts.bulkPut(
+              (selectedTemplate?.sessions ?? []).map((session, index) => {
+                const date = new Date(generatedStart);
+                date.setDate(generatedStart.getDate() + index);
+
+                return {
+                  ...session,
+                  id: crypto.randomUUID(),
+                  date: date.toISOString(),
+                  dayLabel: index === 0 ? "Aujourd'hui" : `Jour ${index + 1}`,
+                  status: "planned" as const
+                };
+              })
+            );
+          }
+        );
 
         await enqueueSyncItem({
           entity: "user_profiles",
@@ -80,9 +145,14 @@ export function OnboardingWizard() {
           }
         });
 
+        setOnboardingComplete(true);
         router.push("/agenda");
       })();
     });
+  }
+
+  function emailLikeName() {
+    return "Toi";
   }
 
   return (
@@ -215,4 +285,3 @@ export function OnboardingWizard() {
     </div>
   );
 }
-

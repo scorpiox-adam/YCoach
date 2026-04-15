@@ -4,6 +4,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { MealComposerCard } from "@/components/cards/meal-composer-card";
 import { MetricCard } from "@/components/cards/metric-card";
+import { StateCard } from "@/components/cards/state-card";
 import { ScreenShell } from "@/components/shell/screen-shell";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Badge } from "@/components/ui/badge";
@@ -41,30 +42,38 @@ export default function NutritionPage() {
           description="La proposition IA reste toujours éditable avant validation. Aucun enregistrement automatique."
         />
         <div className="space-y-3">
-          {meals?.map((meal) => (
-            <Card key={meal.id} className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{meal.mealName}</p>
-                  <p className="text-xs text-muted-foreground">{meal.items.length} items</p>
-                </div>
-                <Badge tone={meal.source === "ai" ? "accent" : "default"}>
-                  {meal.source === "ai" ? "IA corrigée" : "Manuel"}
-                </Badge>
-              </div>
-              <div className="space-y-2">
-                {meal.items.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-foreground">{item.label}</span>
-                    <span className="text-muted-foreground">{item.calories} kcal</span>
+          {meals?.length ? (
+            meals.map((meal) => (
+              <Card key={meal.id} className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{meal.mealName}</p>
+                    <p className="text-xs text-muted-foreground">{meal.items.length} items</p>
                   </div>
-                ))}
-              </div>
-            </Card>
-          ))}
+                  <Badge tone={meal.source === "ai" ? "accent" : "default"}>
+                    {meal.source === "ai" ? "IA corrigée" : "Manuel"}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  {meal.items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-foreground">{item.label}</span>
+                      <span className="text-muted-foreground">{item.calories} kcal</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ))
+          ) : (
+            <StateCard
+              title="Aucun repas enregistré aujourd'hui"
+              description="Commence par une saisie manuelle simple. La photo IA pourra venir ensuite si tu ajoutes ta clé OpenAI."
+              badge={{ label: "Empty", tone: "default" }}
+              cta={{ label: "Ajouter mon premier repas" }}
+            />
+          )}
         </div>
       </section>
     </ScreenShell>
   );
 }
-

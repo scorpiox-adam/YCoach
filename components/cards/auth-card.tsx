@@ -8,6 +8,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  persistLocalAuth,
+  readOnboardingComplete,
+  setOnboardingComplete
+} from "@/lib/auth/client-auth";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type AuthMode = "login" | "signup" | "forgot-password";
@@ -54,9 +59,15 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
         try {
           if (!supabase) {
-            setFeedback("Le projet est scaffoldé. Branche Supabase pour rendre l'auth réelle.");
+            persistLocalAuth(email);
+
+            if (mode === "signup") {
+              setOnboardingComplete(false);
+            }
+
+            setFeedback("Le projet utilise encore une session locale de démonstration tant que Supabase n'est pas branché.");
             if (mode !== "forgot-password") {
-              router.push(mode === "signup" ? "/onboarding" : "/agenda");
+              router.push(mode === "signup" || !readOnboardingComplete() ? "/onboarding" : "/agenda");
             }
             return;
           }
@@ -67,7 +78,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
               setFeedback(error.message);
               return;
             }
-            router.push("/agenda");
+            router.push(readOnboardingComplete() ? "/agenda" : "/onboarding");
             return;
           }
 
@@ -77,6 +88,7 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
               setFeedback(error.message);
               return;
             }
+            setOnboardingComplete(false);
             router.push("/onboarding");
             return;
           }

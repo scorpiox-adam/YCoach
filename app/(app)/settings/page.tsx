@@ -1,3 +1,4 @@
+import { SignOutCard } from "@/components/cards/sign-out-card";
 import { SettingsCard } from "@/components/cards/settings-card";
 import { ScreenShell } from "@/components/shell/screen-shell";
 import { StateCard } from "@/components/cards/state-card";
@@ -17,6 +18,7 @@ export default function SettingsPage() {
         description="Les photos de progression sont privées par défaut. Les photos repas ne sont pas persistées côté serveur en v1."
         badge={{ label: "RLS requis", tone: "accent" }}
       />
+      <SignOutCard />
     </ScreenShell>
   );
 }

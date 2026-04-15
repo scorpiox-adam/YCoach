@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 
 import { ActionListCard } from "@/components/cards/action-list-card";
+import { StateCard } from "@/components/cards/state-card";
 import { ScreenShell } from "@/components/shell/screen-shell";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Badge } from "@/components/ui/badge";
@@ -28,32 +29,41 @@ export default function TrainingPage() {
           description="Logger hors ligne reste prioritaire: les résultats sont enregistrés localement en moins de 200 ms puis synchronisés."
         />
         <div className="space-y-3">
-          {workouts?.map((workout) => (
-            <Card key={workout.id} className="space-y-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
-                  <p className="font-display text-xl font-semibold tracking-[-0.04em] text-foreground">
-                    {workout.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {workout.durationMinutes} min · {workout.exerciseIds.length} exercices
-                  </p>
+          {workouts?.length ? (
+            workouts.map((workout) => (
+              <Card key={workout.id} className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="font-display text-xl font-semibold tracking-[-0.04em] text-foreground">
+                      {workout.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {workout.durationMinutes} min · {workout.exerciseIds.length} exercices
+                    </p>
+                  </div>
+                  <Badge tone={workout.status === "completed" ? "success" : "accent"}>
+                    {workout.status === "completed" ? "Complétée" : workout.dayLabel}
+                  </Badge>
                 </div>
-                <Badge tone={workout.status === "completed" ? "success" : "accent"}>
-                  {workout.status === "completed" ? "Complétée" : workout.dayLabel}
-                </Badge>
-              </div>
 
-              <div className="flex gap-3">
-                <Link href={`/training/session/${workout.id}`} className={buttonVariants({ className: "flex-1" })}>
-                  Démarrer la séance
-                </Link>
-                <Button variant="secondary" className="flex-1">
-                  Voir les perfs passées
-                </Button>
-              </div>
-            </Card>
-          ))}
+                <div className="flex gap-3">
+                  <Link href={`/training/session/${workout.id}`} className={buttonVariants({ className: "flex-1" })}>
+                    Démarrer la séance
+                  </Link>
+                  <Button variant="secondary" className="flex-1">
+                    Voir les perfs passées
+                  </Button>
+                </div>
+              </Card>
+            ))
+          ) : (
+            <StateCard
+              title="Aucune séance planifiée"
+              description="Termine l'onboarding ou choisis un template pour générer ta première semaine d'entraînement."
+              badge={{ label: "Empty", tone: "default" }}
+              cta={{ label: "Choisir un template" }}
+            />
+          )}
         </div>
       </section>
 

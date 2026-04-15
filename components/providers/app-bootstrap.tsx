@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 
 import { useNetworkStatus } from "@/hooks/use-network-status";
-import { db, primeLocalCache } from "@/lib/offline/db";
+import { getClientAuthState, readOnboardingComplete } from "@/lib/auth/client-auth";
+import { db, primeLocalCache, resetUserScopedData } from "@/lib/offline/db";
 import { flushSyncQueue } from "@/lib/offline/sync-engine";
 import { useAppShellStore } from "@/lib/store/use-app-shell-store";
 
@@ -12,7 +13,16 @@ export function AppBootstrap() {
   const setSyncBadge = useAppShellStore((state) => state.setSyncBadge);
 
   useEffect(() => {
-    void primeLocalCache();
+    void (async () => {
+      await primeLocalCache();
+
+      const authState = await getClientAuthState();
+      const onboardingComplete = readOnboardingComplete();
+
+      if (!authState.isAuthenticated || !onboardingComplete) {
+        await resetUserScopedData();
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -40,4 +50,3 @@ export function AppBootstrap() {
 
   return null;
 }
-

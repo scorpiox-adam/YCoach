@@ -120,18 +120,27 @@ export default function AgendaPage() {
           description="Le Coach IA propose, explique et attend toujours ta validation avant de modifier quoi que ce soit."
         />
         <div className="space-y-3">
-          {recommendations?.map((recommendation) => (
+          {recommendations?.length ? (
+            recommendations.map((recommendation) => (
+              <StateCard
+                key={recommendation.id}
+                title={recommendation.suggestion}
+                description={recommendation.justification}
+                badge={{
+                  label: recommendation.status === "accepted" ? "Acceptée" : "À valider",
+                  tone: recommendation.status === "accepted" ? "success" : "accent"
+                }}
+                cta={{ label: recommendation.status === "accepted" ? "Voir l'impact" : "Examiner la suggestion" }}
+              />
+            ))
+          ) : (
             <StateCard
-              key={recommendation.id}
-              title={recommendation.suggestion}
-              description={recommendation.justification}
-              badge={{
-                label: recommendation.status === "accepted" ? "Acceptée" : "À valider",
-                tone: recommendation.status === "accepted" ? "success" : "accent"
-              }}
-              cta={{ label: recommendation.status === "accepted" ? "Voir l'impact" : "Examiner la suggestion" }}
+              title="Aucune recommandation pour l'instant"
+              description="C'est normal au démarrage. Les suggestions apparaîtront seulement quand il y aura assez de contexte sur tes séances, repas et check-ins."
+              badge={{ label: "Empty", tone: "default" }}
+              cta={{ label: "Ouvrir le Coach IA" }}
             />
-          ))}
+          )}
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { MetricCard } from "@/components/cards/metric-card";
 import { ProgressCheckinCard } from "@/components/cards/progress-checkin-card";
+import { StateCard } from "@/components/cards/state-card";
 import { ScreenShell } from "@/components/shell/screen-shell";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { Badge } from "@/components/ui/badge";
@@ -34,18 +35,27 @@ export default function ProgressPage() {
           description="Les photos restent privées; ici le scaffold matérialise surtout le flux et la structure de données."
         />
         <div className="space-y-3">
-          {checkins?.map((checkin) => (
-            <Card key={checkin.id} className="space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{formatShortDate(checkin.date)}</p>
-                  <p className="text-xs text-muted-foreground">{formatKg(checkin.weightKg)}</p>
+          {checkins?.length ? (
+            checkins.map((checkin) => (
+              <Card key={checkin.id} className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{formatShortDate(checkin.date)}</p>
+                    <p className="text-xs text-muted-foreground">{formatKg(checkin.weightKg)}</p>
+                  </div>
+                  <Badge tone="default">{checkin.context}</Badge>
                 </div>
-                <Badge tone="default">{checkin.context}</Badge>
-              </div>
-              <p className="text-sm leading-6 text-muted-foreground">{checkin.note}</p>
-            </Card>
-          ))}
+                <p className="text-sm leading-6 text-muted-foreground">{checkin.note}</p>
+              </Card>
+            ))
+          ) : (
+            <StateCard
+              title="Aucun historique pour l'instant"
+              description="Ton premier check-in créera la base de comparaison pour le poids, le ressenti et les photos."
+              badge={{ label: "Empty", tone: "default" }}
+              cta={{ label: "Créer un check-in" }}
+            />
+          )}
         </div>
       </section>
 
@@ -55,23 +65,30 @@ export default function ProgressPage() {
           description="Le bilan généré reste consultable dans l'historique de progression."
         />
         <div className="space-y-3">
-          {weeklySummary?.map((summary) => (
-            <Card key={summary.id} className="space-y-4">
-              <div>
-                <p className="text-sm font-semibold text-foreground">{summary.weekLabel}</p>
-              </div>
-              <div className="space-y-2">
-                {summary.factualSummary.map((item) => (
-                  <p key={item} className="text-sm leading-6 text-muted-foreground">
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </Card>
-          ))}
+          {weeklySummary?.length ? (
+            weeklySummary.map((summary) => (
+              <Card key={summary.id} className="space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{summary.weekLabel}</p>
+                </div>
+                <div className="space-y-2">
+                  {summary.factualSummary.map((item) => (
+                    <p key={item} className="text-sm leading-6 text-muted-foreground">
+                      {item}
+                    </p>
+                  ))}
+                </div>
+              </Card>
+            ))
+          ) : (
+            <StateCard
+              title="Pas encore de bilan hebdo"
+              description="Le premier bilan apparaîtra quand tu auras quelques données de séance, nutrition ou récupération à résumer."
+              badge={{ label: "Empty", tone: "default" }}
+            />
+          )}
         </div>
       </section>
     </ScreenShell>
   );
 }
-

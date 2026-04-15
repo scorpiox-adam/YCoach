@@ -3,18 +3,10 @@ import Dexie, { type Table } from "dexie";
 import {
   exercises,
   foodItems,
-  mealEntries,
   mockProfile,
   mockSettings,
-  nutritionTarget,
-  plannedWorkouts,
-  progressCheckins,
-  recommendations,
   reminders,
-  trainingPlan,
   trainingTemplates,
-  weeklySummary,
-  workoutSessions
 } from "@/lib/mock-data";
 import type {
   AIRecommendation,
@@ -83,48 +75,69 @@ export async function primeLocalCache() {
     [
       db.profile,
       db.settings,
-      db.trainingPlans,
       db.trainingTemplates,
-      db.plannedWorkouts,
-      db.workoutSessions,
       db.exercises,
       db.foodItems,
+      db.reminders,
+      db.trainingPlans
+    ],
+    async () => {
+      await db.profile.put({
+        ...mockProfile,
+        firstName: "",
+        equipment: [],
+        constraints: [],
+        nutritionPreferences: [],
+        weeklyAvailability: [],
+        streak: 0,
+        weightKg: 0,
+        heightCm: 0,
+        age: 0
+      });
+      await db.settings.put(mockSettings);
+      await db.trainingTemplates.bulkPut(trainingTemplates);
+      await db.exercises.bulkPut(exercises);
+      await db.foodItems.bulkPut(foodItems);
+      await db.reminders.bulkPut(reminders);
+    }
+  );
+}
+
+export async function resetUserScopedData() {
+  await db.transaction(
+    "rw",
+    [
+      db.profile,
+      db.trainingPlans,
+      db.plannedWorkouts,
+      db.workoutSessions,
       db.mealEntries,
       db.progressCheckins,
       db.recommendations,
-      db.reminders,
-      db.syncQueue,
-      db.weeklySummaries
+      db.weeklySummaries,
+      db.syncQueue
     ],
     async () => {
-      await db.profile.put(mockProfile);
-      await db.settings.put(mockSettings);
-      await db.trainingPlans.put(trainingPlan);
-      await db.trainingTemplates.bulkPut(trainingTemplates);
-      await db.plannedWorkouts.bulkPut(plannedWorkouts);
-      await db.workoutSessions.bulkPut(workoutSessions);
-      await db.exercises.bulkPut(exercises);
-      await db.foodItems.bulkPut(foodItems);
-      await db.mealEntries.bulkPut(mealEntries);
-      await db.progressCheckins.bulkPut(progressCheckins);
-      await db.recommendations.bulkPut(recommendations);
-      await db.reminders.bulkPut(reminders);
-      await db.weeklySummaries.put(weeklySummary);
-      await db.syncQueue.bulkPut([
-        {
-          id: "sync-1",
-          entity: "meal_entries",
-          action: "create",
-          payload: {
-            targetCalories: nutritionTarget.calories,
-            note: "Exemple d'élément en attente"
-          },
-          attempts: 0,
-          lastAttemptAt: null,
-          status: "queued",
-          clientMutationId: "demo-sync-1"
-        }
-      ]);
+      await db.trainingPlans.clear();
+      await db.plannedWorkouts.clear();
+      await db.workoutSessions.clear();
+      await db.mealEntries.clear();
+      await db.progressCheckins.clear();
+      await db.recommendations.clear();
+      await db.weeklySummaries.clear();
+      await db.syncQueue.clear();
+      await db.profile.put({
+        ...mockProfile,
+        firstName: "",
+        equipment: [],
+        constraints: [],
+        nutritionPreferences: [],
+        weeklyAvailability: [],
+        streak: 0,
+        weightKg: 0,
+        heightCm: 0,
+        age: 0
+      });
     }
   );
 }
