@@ -1,0 +1,10 @@
+.next
+.vercel
+node_modules
+dist
+coverage
+.env.local
+.env
+.DS_Store
+supabase/.temp
+
